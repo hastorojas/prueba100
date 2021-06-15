@@ -39,3 +39,23 @@ print (cadena1[0:3])
 print (cadena2[3:7])
 
 print(cadena2+' '+cadena1)
+
+#listas 
+print('************* EJEMPLOS CON LISTAS **************')
+lista1 = ['roja','verde','amarilla']
+print(lista1)
+print (lista1[0])
+print (lista1[1])
+print (lista1[2])
+
+lista1.append('morado')
+print('Tamano de la lista: {}'.format(len(lista1)))
+print(lista1.index('verde'))
+
+#borrado mediante el indice de una lista
+lista1.pop(1)
+print(lista1)
+
+#borrado mediante el valor de una lista
+lista1.remove('morado')
+print(lista1)
