@@ -30,8 +30,8 @@ class Usuario(Persona):
                 else:
                         self.codusuario = codusuario
 
-        def __str__(self) -> str:
-                return self.codusuario + " -> " + str(self.nombre)
+        def __str__(self):
+                return str(self.codusuario) + " -> " + str(self.nombre)
 
         def toDic(self):
                 d = {
@@ -82,4 +82,31 @@ class Menu:
             # return os.system('cls')
             return os.system('clear')
         clear()
+
+showUsuario = True
+
+Home_op = {"Agregar Usuario": "1", "Buscar Usuario": "2","Quitar Usuario": "3","Listar Usuarios":"4","Salir": "0"}
+
+listausuarios =[]
+listausuarioDic = []
+
+Main_menu = Menu("USUARIOS", Home_op)
+respuesta = Main_menu.show()
+
+while showUsuario:
+        if(respuesta == "0"):
+                break
+        elif(respuesta == "1"):
+                nombre = input('Ingrese su nombre: ')
+                edad = input('Ingrese su edad: ')
+                telefono = input('Ingrese su telefono: ')
+                usuario = Usuario(nombre,edad,telefono,2,)
+                listausuarios.append(usuario)
+                print(usuario)
+                break
+
+        elif (respuesta == "2"):
+                for lista in listausuarios:
+                    print(lista)
+
 

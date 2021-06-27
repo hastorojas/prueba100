@@ -32,3 +32,4 @@ class Calculadora():
 
 
 obj1 = Calculadora()
+print(obj1)
