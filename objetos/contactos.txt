@@ -1,0 +1,1 @@
+[{"nombre": "betsy", "dni": 45264155, "telefono": 2435678, "codusuario": 2}, {"nombre": "haroun", "dni": 70430186, "telefono": 23232232, "codusuario": 2}]
