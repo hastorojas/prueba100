@@ -16,15 +16,16 @@ class color:
 
 
 class Persona():
-     def __init__(self,nombre,dni,telefono):
+     def __init__(self,nombre,apellidos,dni,telefono):
         self.nombre = nombre
+        self.apellidos = apellidos
         self.dni = dni
         self.telefono = telefono
 
 
 class Usuario(Persona):    
-        def __init__(self, nombre, dni, telefono,codusuario=0):
-                super().__init__(nombre, dni, telefono)
+        def __init__(self, nombre, apellidos ,dni, telefono,codusuario=0):
+                super().__init__(nombre, apellidos, dni, telefono)
                 if codusuario == 0:
                         self.codusuario = self.codusuario + 1
                 else:
@@ -36,6 +37,7 @@ class Usuario(Persona):
         def toDic(self):
                 d = {
                 "nombre": self.nombre,
+                "apellidos": self.apellidos,
                 "dni": self.dni,
                 "telefono": self.telefono,
                 "codusuario": self.codusuario
@@ -56,7 +58,7 @@ class Archivo:
 
     def borrarArchivo(self):
         directorioActual = os.getcwd()
-        path = directorioActual+"\\"+self.nombreArchivo
+        path = directorioActual+"//"+self.nombreArchivo
         print(path)
         if(os.path.isfile(path)):
             try:
@@ -69,7 +71,7 @@ class Archivo:
     def escribirArchivo(self, linea):
         try:
             directorioActual = os.getcwd()
-            path = directorioActual+"\\"+self.nombreArchivo
+            path = directorioActual+"//"+self.nombreArchivo
             if(os.path.isfile(path)):
                 try:
                     #escribir el archiv
@@ -139,7 +141,7 @@ def cargainicial():
     print(res)
     listTempCliente = json.loads(res)
     for dic in listTempCliente:
-        newCliente = Usuario(dic["nombre"],dic["dni"],dic["telefono"],dic["codusuario"])
+        newCliente = Usuario(dic["nombre"],dic["apellidos"],dic["dni"],dic["telefono"],dic["codusuario"])
         listausuarios.append(newCliente)
         listausuarioDic.append(newCliente.toDic())
 
@@ -152,36 +154,77 @@ Main_menu = Menu("USUARIOS", Home_op)
 while showUsuario:
         respuesta = Main_menu.show()
         if(respuesta == "0"):
-                break
+            print("Hasta luego...")
+            break
+
         elif(respuesta == "1"):
-                nombre = input('Ingrese su nombre: ')
-                dni = int(input('Ingrese su DNI: '))
-                telefono = int(input('Ingrese su telefono: '))
-                usuario = Usuario(nombre,dni,telefono,2)
-                listausuarios.append(usuario)
-                listausuarioDic.append(usuario.toDic())
-                jsonString = json.dumps(listausuarioDic)
-                fileCliente.borrarArchivo()
-                fileCliente.escribirArchivo(jsonString)
-                print(usuario)
-                print("Usuario Agregado !!")
+            nombre = str(input('Ingrese su nombre: '))
+            apellidos = str(input('Ingrese su apellido: '))
+            dni = str(input('Ingrese su DNI: '))
+            telefono = int(input('Ingrese su telefono: '))
+            usuario = Usuario(nombre,apellidos,dni,telefono,2)
+            listausuarios.append(usuario)
+            listausuarioDic.append(usuario.toDic())
+            jsonString = json.dumps(listausuarioDic)
+            fileCliente.borrarArchivo()
+            fileCliente.escribirArchivo(jsonString)
+            print(usuario)
+            print("Usuario Agregado !!")
 
         elif (respuesta == "2"):
-            dniusuario = int(input("Ingresa el DNI a buscar: "))
+            valor = 0
+            dniusuario = str(input("Ingresa el DNI a buscar: "))
             for item in listausuarios:
                 if(item.dni == dniusuario):
-                    print("")
-                    print("::::::: Datos del Usuario :::::::")
-                    print("")
-                    print(f"{item.dni} | {item.nombre} | {item.telefono}")             
-                    print("")
-                else:
-                    print("")
-                    print(f"El usuario con DNI: {item.dni} no existe !")
-                    print("")
-            break
+                    valor = 1
+                    usuMod = item
+                    
+            if (valor == 1):
+                print("")
+                print("::::::: Datos del Usuario :::::::")
+                print("")
+                print(f"{usuMod.dni} | {usuMod.nombre} | {usuMod.apellidos} | {usuMod.telefono}")             
+                print("")
+                break
+            else: 
+                print(f"El usuario con DNI: {dniusuario} no fue encontrado")       
+                break
+
         elif (respuesta == "3"):
-            break
+            valor3 = 0
+            dniusuarioborrar = str(input("Ingrese el DNI del usuario a borrar: "))
+            for item in listausuarios:
+                if(item.dni == dniusuarioborrar):
+                    valor3 = 1
+                    usuMod3 = item
+
+            if (valor3 == 1):
+                print("")
+                print("::::::: Datos del Usuario :::::::")
+                print("")
+                print(f"{usuMod3.dni} | {usuMod3.nombre} | {usuMod3.apellidos} | {usuMod3.telefono}")             
+                print("")
+                confirmacion = str(input("Estas seguro que quieres borrarlo [s/n]? "))
+                
+                if(confirmacion == 's'):
+                    listausuarios.remove(usuMod3)
+                    listausuarioDic.remove(usuMod3.toDic())
+                    jsonString = json.dumps(listausuarioDic)
+                    fileCliente.borrarArchivo()
+                    fileCliente.escribirArchivo(jsonString)
+                    print("Usuario borrado !")
+                    break
+                elif(confirmacion == 'n'):
+                    print("Hasta pronto ...")
+                    break
+            else: 
+                print(f"El usuario con DNI: {dniusuarioborrar} no fue encontrado")
+                break
 
         elif (respuesta == "4"):
+            print("::::::: Listado de Usuarios :::::::")
+            print("")
+            for item in listausuarios:          
+                print(f"{item.dni} | {item.nombre} | {item.apellidos} | {item.telefono}")             
+                print("")
             break
