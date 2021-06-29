@@ -1,0 +1,1 @@
+[{"nombre": "Haroun", "apellidos": "Asto", "dni": "70430186", "telefono": 2349687, "codusuario": 2, "entrada": "28/6/2021 19:53:10", "salida": "28/6/2021 22:28:36"}]

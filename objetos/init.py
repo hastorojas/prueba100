@@ -1,6 +1,9 @@
 import os
 import time
 import json
+from datetime import datetime
+
+now = datetime.now()
 
 class color:
     PURPLE = '\033[95m'
@@ -14,8 +17,7 @@ class color:
     UNDERLINE = '\033[4m'
     END = '\033[0m'
 
-
-class Persona():
+class Persona:
      def __init__(self,nombre,apellidos,dni,telefono):
         self.nombre = nombre
         self.apellidos = apellidos
@@ -44,6 +46,27 @@ class Usuario(Persona):
                 }       
                 return d
 
+class Asistencia(Usuario):
+    def __init__(self,nombre,apellidos,dni,telefono,codusuario,entrada,salida):
+        super().__init__(nombre,apellidos,dni,telefono,codusuario)
+        self.entrada = entrada
+        self.salida = salida
+
+    def __str__(self):
+                return str(self.dni) + " entrada: " + str(self.entrada)+ " salida: " + str(self.salida)
+
+    def toDicAsist(self):
+                a = {
+                "nombre": self.nombre,
+                "apellidos": self.apellidos,
+                "dni": self.dni,
+                "telefono": self.telefono,
+                "codusuario": self.codusuario,
+                "entrada": self.entrada,
+                "salida": self.salida
+                }       
+                return a
+
 class Archivo:
     def __init__(self, nombreArchivo):
         self.nombreArchivo = nombreArchivo
@@ -63,7 +86,7 @@ class Archivo:
         if(os.path.isfile(path)):
             try:
                 os.remove(path)
-                print("removiendo archivo")
+                #print("removiendo archivo")
 
             except Exception as error:
                 print(error)
@@ -130,11 +153,15 @@ class Menu:
             return os.system('clear')
         clear()
 
-
+#lista de usuarios
 listausuarios = []
 listausuarioDic = []
+#lista de asistencia
+listasistencia = []
+listasistenciDic = []
 
 fileCliente = Archivo("contactos.txt")
+fileAsistencia = Archivo("asistencia.txt")
 
 def cargainicial():
     res = fileCliente.leerArchivo()
@@ -145,86 +172,184 @@ def cargainicial():
         listausuarios.append(newCliente)
         listausuarioDic.append(newCliente.toDic())
 
-cargainicial()
+def cargainicial_asistencia():
+    res = fileAsistencia.leerArchivo()
+    print(res)
+    listTempAsistencia = json.loads(res)
+    for dic in listTempAsistencia:
+        newAsist = Asistencia(dic["nombre"],dic["apellidos"],dic["dni"],dic["telefono"],dic["codusuario"],dic["entrada"],dic["salida"])
+        listasistencia.append(newAsist)
+        listasistenciDic.append(newAsist.toDicAsist())
+
+
+
+showMenu = True
 showUsuario = True
-Home_op = {"Agregar Usuario": "1", "Buscar Usuario": "2","Quitar Usuario": "3","Listar Usuarios":"4","Salir": "0"}
-respuesta = ""
-Main_menu = Menu("USUARIOS", Home_op)
+showAsistencia = True
+showReportes = True
 
-while showUsuario:
-        respuesta = Main_menu.show()
-        if(respuesta == "0"):
-            print("Hasta luego...")
-            break
+#Home_op = {"Agregar Usuario": "1", "Buscar Usuario": "2","Quitar Usuario": "3","Listar Usuarios":"4","Marcar Entrada":"5","Marcar Salida":"6","Salir": "0"}
+Home_op = {"Usuarios":"1","Asistencia":"2","Reportes":"3","Salir":"0"}
+SubMenu1 = {"Agregar Usuario": "1", "Buscar Usuario": "2","Quitar Usuario": "3","Listar Usuarios":"4","Salir":"0"}
+SubMenu2 = {"Marcar Entrada":"1","Marcar Salida":"2","Salir":"0"}
+SubMenu3 = {"Reporte por Usuario":"1","Reporte por Fecha":"2","Salir":"0"}
 
-        elif(respuesta == "1"):
-            nombre = str(input('Ingrese su nombre: '))
-            apellidos = str(input('Ingrese su apellido: '))
-            dni = str(input('Ingrese su DNI: '))
-            telefono = int(input('Ingrese su telefono: '))
-            usuario = Usuario(nombre,apellidos,dni,telefono,2)
-            listausuarios.append(usuario)
-            listausuarioDic.append(usuario.toDic())
-            jsonString = json.dumps(listausuarioDic)
-            fileCliente.borrarArchivo()
-            fileCliente.escribirArchivo(jsonString)
-            print(usuario)
-            print("Usuario Agregado !!")
+cargainicial()
+cargainicial_asistencia()
+Main_menu = Menu("PRINCIPAL", Home_op)
+respuesta = Main_menu.show()
 
-        elif (respuesta == "2"):
-            valor = 0
-            dniusuario = str(input("Ingresa el DNI a buscar: "))
-            for item in listausuarios:
-                if(item.dni == dniusuario):
-                    valor = 1
-                    usuMod = item
+while showMenu:
+    if respuesta == "0":
+        break
+    elif respuesta == "1":
+        while showUsuario:
+            menusuario = Menu("USUARIOS", SubMenu1)
+            ansUsuario = menusuario.show()
+            if(ansUsuario == "0"):
+                print("Hasta luego...")
+                break                    
+            elif(ansUsuario == "1"):
+                nombre = str(input('Ingrese su nombre: '))
+                apellidos = str(input('Ingrese su apellido: '))
+                dni = str(input('Ingrese su DNI: '))
+                telefono = int(input('Ingrese su telefono: '))
+                usuario = Usuario(nombre,apellidos,dni,telefono,2)
+                listausuarios.append(usuario)
+                listausuarioDic.append(usuario.toDic())
+                jsonString = json.dumps(listausuarioDic)
+                fileCliente.borrarArchivo()
+                fileCliente.escribirArchivo(jsonString)
+                print(usuario)
+                print("Usuario Agregado !!")
+            elif (ansUsuario == "2"):
+                valor = 0
+                dniusuario = str(input("Ingresa el DNI a buscar: "))
+                for item in listausuarios:
+                    if(item.dni == dniusuario):
+                        valor = 1
+                        usuMod = item
                     
-            if (valor == 1):
-                print("")
-                print("::::::: Datos del Usuario :::::::")
-                print("")
-                print(f"{usuMod.dni} | {usuMod.nombre} | {usuMod.apellidos} | {usuMod.telefono}")             
-                print("")
-                break
-            else: 
-                print(f"El usuario con DNI: {dniusuario} no fue encontrado")       
-                break
+                if (valor == 1):
+                    print("")
+                    print("::::::: Datos del Usuario :::::::")
+                    print("")
+                    print(f"{usuMod.dni} | {usuMod.nombre} | {usuMod.apellidos} | {usuMod.telefono}")             
+                    print("")
+                    break
+                else: 
+                    print(f"El usuario con DNI: {dniusuario} no fue encontrado")       
+                    break
+            elif (ansUsuario == "3"):
+                valor3 = 0
+                dniusuarioborrar = str(input("Ingrese el DNI del usuario a borrar: "))
+                for item in listausuarios:
+                    if(item.dni == dniusuarioborrar):
+                        valor3 = 1
+                        usuMod3 = item
 
-        elif (respuesta == "3"):
-            valor3 = 0
-            dniusuarioborrar = str(input("Ingrese el DNI del usuario a borrar: "))
-            for item in listausuarios:
-                if(item.dni == dniusuarioborrar):
-                    valor3 = 1
-                    usuMod3 = item
-
-            if (valor3 == 1):
-                print("")
-                print("::::::: Datos del Usuario :::::::")
-                print("")
-                print(f"{usuMod3.dni} | {usuMod3.nombre} | {usuMod3.apellidos} | {usuMod3.telefono}")             
-                print("")
-                confirmacion = str(input("Estas seguro que quieres borrarlo [s/n]? "))
+                if (valor3 == 1):
+                    print("")
+                    print("::::::: Datos del Usuario :::::::")
+                    print("")
+                    print(f"{usuMod3.dni} | {usuMod3.nombre} | {usuMod3.apellidos} | {usuMod3.telefono}")             
+                    print("")
+                    confirmacion = str(input("Estas seguro que quieres borrarlo [s/n]? "))
                 
-                if(confirmacion == 's'):
-                    listausuarios.remove(usuMod3)
-                    listausuarioDic.remove(usuMod3.toDic())
-                    jsonString = json.dumps(listausuarioDic)
-                    fileCliente.borrarArchivo()
-                    fileCliente.escribirArchivo(jsonString)
-                    print("Usuario borrado !")
+                    if(confirmacion == 's'):
+                        listausuarios.remove(usuMod3)
+                        listausuarioDic.remove(usuMod3.toDic())
+                        jsonString = json.dumps(listausuarioDic)
+                        fileCliente.borrarArchivo()
+                        fileCliente.escribirArchivo(jsonString)
+                        print("Usuario borrado !")
+                        break
+                    elif(confirmacion == 'n'):
+                        print("Hasta pronto ...")
+                        break
+                else: 
+                    print(f"El usuario con DNI: {dniusuarioborrar} no fue encontrado")
                     break
-                elif(confirmacion == 'n'):
-                    print("Hasta pronto ...")
-                    break
-            else: 
-                print(f"El usuario con DNI: {dniusuarioborrar} no fue encontrado")
-                break
 
-        elif (respuesta == "4"):
-            print("::::::: Listado de Usuarios :::::::")
-            print("")
-            for item in listausuarios:          
-                print(f"{item.dni} | {item.nombre} | {item.apellidos} | {item.telefono}")             
+            elif (ansUsuario == "4"):
+                print("::::::: Listado de Usuarios :::::::")
                 print("")
-            break
+                for item in listausuarios:          
+                    print(f"{item.dni} | {item.nombre} | {item.apellidos} | {item.telefono}")             
+                    print("")
+                break
+    elif respuesta == "2":
+        while showAsistencia:
+            menuasistencia = Menu("ASISTENCIA", SubMenu2)
+            ansasistencia = menuasistencia.show()   
+            if (ansasistencia == "1"):
+                valor = 0
+                print("::::::: Marcar Entrada :::::::")
+                print("")
+                dniasistencia = str(input("Ingrese su DNI: "))
+                for item in listausuarios:
+                    if(item.dni == dniasistencia):
+                        valor = 1
+                        usuMod = item
+            
+                if valor == 1:
+                    print("")
+                    print("::::::: Datos del Usuario :::::::")
+                    print("")
+                    print(f"{usuMod.dni} | {usuMod.nombre} | {usuMod.apellidos} | {usuMod.telefono}")             
+                    print("")
+                    entrada = str(now.day)+'/'+str(now.month)+'/'+str(now.year)+' '+str(now.hour)+':'+str(now.minute)+':'+str(now.second)
+                    salida = ""
+                    print(f"Entrada marcada con exito !! -> {entrada}")
+                    print("")
+                    asistencia = Asistencia(usuMod.nombre,usuMod.apellidos,usuMod.dni,usuMod.telefono,usuMod.codusuario,entrada,salida)
+                    listasistencia.append(asistencia)
+                    listasistenciDic.append(asistencia.toDic())
+                    jsonString = json.dumps(listasistenciDic)
+                    fileAsistencia.borrarArchivo()
+                    fileAsistencia.escribirArchivo(jsonString)
+                    break
+                else: 
+                    print(f"El DNI: {dniasistencia} no se encuentra registrado !!")
+                    break
+
+            elif (ansasistencia == "2"):
+                valor = 0
+                print("::::::: Marcar Salida :::::::")
+                print("")
+                dniasistencia = str(input("Ingrese su DNI: "))
+                for item in listasistencia:
+                    if(item.dni == dniasistencia):
+                        valor = 1
+                        usuMod = item
+            
+                if valor == 1:
+                    print("")
+                    print("::::::: Datos del Usuario :::::::")
+                    print("")
+                    print(f"{usuMod.dni} | {usuMod.nombre} | {usuMod.apellidos} | {usuMod.telefono}")             
+                    print("")
+                    salida = str(now.day)+'/'+str(now.month)+'/'+str(now.year)+' '+str(now.hour)+':'+str(now.minute)+':'+str(now.second)         
+                    newdni = usuMod.dni
+                    newnombre = usuMod.nombre
+                    newapellidos = usuMod.apellidos
+                    newtelefono = usuMod.telefono 
+                    newcodigo = usuMod.codusuario
+                    newentrada = usuMod.entrada
+                    #print(usuMod.salida)
+                    print(f"Salida marcada con exito !! -> {salida}")
+                    print("")
+                    asistencia = Asistencia(newnombre,newapellidos,newdni,newtelefono,newcodigo,newentrada,salida)
+                    listasistencia.remove(usuMod)
+                    listasistencia.append(asistencia)
+                    listasistenciDic.remove(usuMod.toDicAsist())
+                    listasistenciDic.append(asistencia.toDicAsist())
+                    jsonString = json.dumps(listasistenciDic)
+                    fileAsistencia.borrarArchivo()
+                    fileAsistencia.escribirArchivo(jsonString)
+                    break
+                else: 
+                    print(f"El DNI: {dniasistencia} no se encuentra registrado !!")
+                    break
+
+        elif respuesta == "3":

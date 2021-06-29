@@ -1,1 +1,1 @@
-[{"nombre": "Betsy", "apellidos": "Rojas", "dni": "45264155", "telefono": 4329876, "codusuario": 2}]
+[{"nombre": "Betsy", "apellidos": "Rojas", "dni": "45264155", "telefono": 4329876, "codusuario": 2}, {"nombre": "Haroun", "apellidos": "Asto", "dni": "70430186", "telefono": 2349687, "codusuario": 2}]
