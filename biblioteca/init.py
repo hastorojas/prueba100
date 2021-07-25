@@ -1,7 +1,7 @@
-from conexion import conexion
+#from conexion import conexion
 import os
 import time
-from tabulate import tabulate
+#from tabulate import tabulate
 
 class color:
     PURPLE = '\033[95m'
@@ -54,7 +54,7 @@ class Menu:
                 color.YELLOW + "Por favor, ingrese su opción: " + color.END)
             print("")
             if(ans.upper() == "0"):
-                print("Hasta, pronto")
+                print("Hasta, pronto ...")
                 break
             b = 0
             for (key, value) in self.op_list.items():
@@ -75,14 +75,45 @@ class Menu:
         clear()
 
 #Menu principal 
-conn = conexion()
+#conn = conexion()
 opMenuPrincipal ={"Lector":"1", "Libros":"2","Prestamos":"3","Salir": "0"}
-opSubMenu1 = {"Listar Lectores":"1","Registrar Lector":"2","Actualizar Lector":"3","Eliminar Lector":"4","Atras":"0"}
+optSubMenu1 = {"Listar Lectores":"1","Registrar Lector":"2","Actualizar Lector":"3","Eliminar Lector":"4","Atras":"0"}
 optSubMenu2 = {"Listar Libros":"1","Registrar Libro":"2","Actualizar Libro":"3","Eliminar Libro":"4","Atras":"0"}
 optSubMenu3 = {"Registro de Prestamos":"1","Alquilar Libro":"2","Devolver Libro":"3","Atras":"0"}
 
-showHome = True
-ansMenuPrincipal = "" 
+showMenu = True
+showLector = True
+showLibro = True 
+showPrestamo = True
 
-menuPincipal = Menu("Menu Principal", opMenuPrincipal) 
-    
+respuesta = ""
+rptlector = ""
+rptlibros = ""
+rptprestamos = ""
+
+
+menuPrincipal = Menu("Menu Principal", opMenuPrincipal) 
+
+while showMenu:
+    respuesta = menuPrincipal.show()
+    if (respuesta == "0"):
+        print("")
+        break
+    elif(respuesta == "1"):
+        menuLector = Menu("LECTOR", optSubMenu1) 
+        while showLector:
+            rptlector = menuLector.show()
+            if (rptlector == "0"): #atras
+                break
+    elif(respuesta=="2"):
+        menuLibros = Menu("LIBROS", optSubMenu2) 
+        while showLibro:
+            rptlector = menuLibros.show()
+            if (rptlector == "0"): #atras
+                break
+    elif(respuesta=="3"):
+        menuPrestamos = Menu("PRESTAMOS", optSubMenu3) 
+        while showPrestamo:
+            rptprestamos = menuPrestamos.show()
+            if (rptprestamos == "0"): #atras
+                break
