@@ -1,7 +1,7 @@
-#from conexion import conexion
+from conexion import conexion
 import os
 import time
-#from tabulate import tabulate
+from tabulate import tabulate
 
 class color:
     PURPLE = '\033[95m'
@@ -25,13 +25,23 @@ class Lector:
         self.edad = edad
         self.telefono = telefono 
 
+    def __str__(self):
+        rpta = self.codigo_lector+" - "+self.nombres+" "+self.apellido_paterno+" "+self.apellido_materno
+        return rpta
+        
+
 class Libros: 
-    def __init__(self,titulo,autor,categoria,paginas,descripcion):
+    def __init__(self,codigo_libro,titulo,autor,categoria,paginas,descripcion):
+        self.codigo_libro = codigo_libro
         self.titulo = titulo 
         self.autor = autor
         self.categoria = categoria 
         self.paginas = paginas 
         self.descripcion = descripcion 
+
+    def __str__(self):
+        rpta = self.codigo_libro+" - "+self.titulo+", "+self.autor
+        return rpta
 
 class Menu:
     def __init__(self, name, op_list, pre_menu=0):
@@ -75,11 +85,11 @@ class Menu:
         clear()
 
 #Menu principal 
-#conn = conexion()
+conn = conexion()
 opMenuPrincipal ={"Lector":"1", "Libros":"2","Prestamos":"3","Salir": "0"}
 optSubMenu1 = {"Listar Lectores":"1","Registrar Lector":"2","Actualizar Lector":"3","Eliminar Lector":"4","Atras":"0"}
 optSubMenu2 = {"Listar Libros":"1","Registrar Libro":"2","Actualizar Libro":"3","Eliminar Libro":"4","Atras":"0"}
-optSubMenu3 = {"Registro de Prestamos":"1","Alquilar Libro":"2","Devolver Libro":"3","Atras":"0"}
+optSubMenu3 = {"Listar Prestamos":"1","Alquilar Libro":"2","Devolver Libro":"3","Atras":"0"}
 
 showMenu = True
 showLector = True
@@ -90,7 +100,6 @@ respuesta = ""
 rptlector = ""
 rptlibros = ""
 rptprestamos = ""
-
 
 menuPrincipal = Menu("Menu Principal", opMenuPrincipal) 
 
@@ -105,12 +114,26 @@ while showMenu:
             rptlector = menuLector.show()
             if (rptlector == "0"): #atras
                 break
-    elif(respuesta=="2"):
+            if (rptlector == "1"):
+                query = "select * from lector"
+                result = conn.consultarBDD(query)
+                headerlector = ['ID', 'Codigo', 'Nombre', 'Ape.Paterno', 'Ape.Materno',
+                      'Dni','Edad', 'Telefono']
+                print(tabulate(result, headers=headerlector, tablefmt='fancy_grid'))
+                input("presiona cualquier tecla para continuar")
+    elif(respuesta == "2"):
         menuLibros = Menu("LIBROS", optSubMenu2) 
         while showLibro:
-            rptlector = menuLibros.show()
-            if (rptlector == "0"): #atras
+            rptlibros = menuLibros.show()
+            if (rptlibros == "0"): #atras
                 break
+            if (rptlibros == "1"):
+                query = "select * from libros order by condicion asc"
+                resultlibros = conn.consultarBDD(query)
+                headerlibros = ['ID', 'Codigo', 'Titulo', 'Autor', 'Categoria',
+                      'Paginas','Condicion','Descripcion']
+                print(tabulate(resultlibros, headers=headerlibros, tablefmt='fancy_grid'))
+                input("presiona cualquier tecla para continuar")
     elif(respuesta=="3"):
         menuPrestamos = Menu("PRESTAMOS", optSubMenu3) 
         while showPrestamo:
