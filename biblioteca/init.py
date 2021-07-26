@@ -158,7 +158,7 @@ while showMenu:
                             nombres = '{nombre}',
                             apellido_paterno = '{apellidoPaterno}',
                             apellido_materno = '{apellidoMaterno}',
-                            dni = {dni},
+                            dni = '{dni}',
                             edad = {edad},
                             telefono = '{telefono}'
                             where id_lector = {id};"""
@@ -214,7 +214,7 @@ while showMenu:
                             titulo = '{nombre}',
                             autor = '{apellidoPaterno}',
                             categoria = '{apellidoMaterno}',
-                            paginas = {dni},
+                            paginas = '{dni}',
                             editorial = {edad},
                             condicion = '{telefono}'
                             where id_libro = {id};"""
@@ -223,10 +223,80 @@ while showMenu:
                     print("Se actualizo correctamente !!")
                 input("presiona una tecla para continuar...")
 
-
     elif(respuesta=="3"):
         menuPrestamos = Menu("PRESTAMOS", optSubMenu3) 
         while showPrestamo:
             rptprestamos = menuPrestamos.show()
             if (rptprestamos == "0"): #atras
                 break
+
+            if (rptprestamos == "2"):
+                query = """Select id_libro,codigo_libro,titulo from libros where condicion='LIBRE';"""
+                result = conn.consultarBDD(query)
+                print("Libros LIBRES para alquilar")
+                print("")
+                print(color.RED + "|ID\t|CODIGO\t|TITULO\t" + color.END)
+                for item in result:
+                    print(
+                        f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
+                print("")
+                idlibro = input("Ingrese el id del libro a alquilar: ")
+                dni = input("Ingrese su DNI: ")
+
+                query = f"""Select id_lector from lector where dni='{dni}';"""
+                resultdni = conn.consultarBDD(query)
+
+                if (resultdni):
+
+                    for item in resultdni:
+                        idlector=item[0]
+
+                        query1 = f"""insert into prestamos (id_lector,id_libro,alquilado) values ({idlector},{idlibro},now());"""
+                        result1 = conn.ejecutarBDD(query1)
+                        if (result1):
+                            print("Se realizo el prestamo correctamente")
+               
+                        query2 = f"""update libros set condicion = 'PRESTADO' where id_libro = {idlibro} and condicion='LIBRE';"""
+                        result2 = conn.ejecutarBDD(query2)
+                        if (result2):
+                            print("El libro se encuentra alquilado !!")
+                    input("presiona una tecla para continuar...")
+
+                else:
+                    print("No se encuentra registrado como Lector")
+                input("presiona una tecla para continuar...")
+            
+            if (rptprestamos == "3"):
+                dni = input("Ingrese su dni: ")
+                query = f"""Select id_lector from lector where dni='{dni}';"""
+                resultdni = conn.consultarBDD(query)
+                if (resultdni):
+                    for item in resultdni:
+                        idlector=item[0]
+                        query = f"""Select id_libro,codigo_libro,titulo from libros where id_libro in (Select id_libro from prestamos where id_lector='{idlector}' and devuelto=NULL);"""
+                        resultlibro = conn.consultarBDD(query)
+                        print(color.RED + "|ID\t|CODIGO\t|TITULO\t" + color.END)
+                        for item in resultlibro:
+                            print(f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
+                            print("")
+                        idlibro = input('Ingrese el ID del libro a devolver')
+
+                        query1 = f"""update prestamos
+                                    set devuelto = now()
+                                    where id_libro = {idlibro} and id_lector={idlector};"""
+                        result1 = conn.ejecutarBDD(query1)
+                        if(result1):
+                                print("Se realizo la devolucion correctamente !!")
+                                
+                        query2 = f"""update libros
+                                    set condicion = 'LIBRE'
+                                    where id_libro = {idlibro};"""
+                        result2 = conn.ejecutarBDD(query2)
+                        if(result2):
+                            print("El libro se encuentra devuelto")
+                    input("presiona una tecla para continuar...")
+                
+                else:
+                    print("No se encuentra registrado como Lector")
+                input("presiona una tecla para continuar...")
+
