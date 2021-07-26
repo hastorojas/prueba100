@@ -233,7 +233,7 @@ while showMenu:
             if (rptprestamos == "2"):
                 query = """Select id_libro,codigo_libro,titulo from libros where condicion='LIBRE';"""
                 result = conn.consultarBDD(query)
-                print("Libros LIBRES para alquilar")
+                print("LIBRES para alquilar")
                 print("")
                 print(color.RED + "|ID\t|CODIGO\t|TITULO\t" + color.END)
                 for item in result:
@@ -241,6 +241,14 @@ while showMenu:
                         f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
                 print("")
                 idlibro = input("Ingrese el id del libro a alquilar: ")
+                querylibro = f"""select condicion from libros where id_libro={idlibro};"""
+                resultlibro = conn.consultarBDD(querylibro)
+                for item in resultlibro:
+                    condicion=item[0]
+                    if(condicion=='PRESTADO'):
+                        print("El libro se encuentra PRESTADO !!")
+                input("presiona una tecla para continuar...")
+                        
                 dni = input("Ingrese su DNI: ")
 
                 query = f"""Select id_lector from lector where dni='{dni}';"""
