@@ -87,8 +87,8 @@ class Menu:
 #Menu principal 
 conn = conexion()
 opMenuPrincipal ={"Lector":"1", "Libros":"2","Prestamos":"3","Salir": "0"}
-optSubMenu1 = {"Listar Lectores":"1","Registrar Lector":"2","Actualizar Lector":"3","Eliminar Lector":"4","Atras":"0"}
-optSubMenu2 = {"Listar Libros":"1","Registrar Libro":"2","Actualizar Libro":"3","Eliminar Libro":"4","Atras":"0"}
+optSubMenu1 = {"Listar Lectores":"1","Registrar Lector":"2","Actualizar Lector":"3","Atras":"0"}
+optSubMenu2 = {"Listar Libros":"1","Registrar Libro":"2","Actualizar Libro":"3","Atras":"0"}
 optSubMenu3 = {"Listar Prestamos":"1","Alquilar Libro":"2","Devolver Libro":"3","Atras":"0"}
 
 showMenu = True
@@ -115,12 +115,59 @@ while showMenu:
             if (rptlector == "0"): #atras
                 break
             if (rptlector == "1"):
-                query = "select * from lector"
+                query = """select * from lector;"""
                 result = conn.consultarBDD(query)
                 headerlector = ['ID', 'Codigo', 'Nombre', 'Ape.Paterno', 'Ape.Materno',
                       'Dni','Edad', 'Telefono']
                 print(tabulate(result, headers=headerlector, tablefmt='fancy_grid'))
                 input("presiona cualquier tecla para continuar")
+            if (rptlector == "2"):
+                codigo = input("Escribe el Codigo de Lector ")
+                nombre = input("Escribe tu nombre: ")
+                apellidoPaterno = input("Escribe tu apellido Paterno: ")
+                apellidoMaterno = input("Escribe tu apellido Materno: ")
+                dni = input("Escribe tu DNI: ")
+                edad = input("Escribe tu edad: ")
+                telefono = input("Escribe tu telefono: ")
+                query = f"""insert into profesores (codigo_lector,nombres,apellido_paterno,apellido_materno,dni,edad,telefono) 
+                        values ('{codigo}','{nombre}','{apellidoPaterno}','{apellidoMaterno}','{dni}',{edad},'{telefono}');"""
+                result = conn.ejecutarBDD(query)
+
+                if (result):
+                    print("Se registro correctamente !")
+                input("presiona una tecla para continuar...")
+
+            if (rptlector == "3"):           
+                query = """Select id_lector,codigo_lector,concat(nombres,' ',apellido_paterno) as nombres from lector;"""
+                result = conn.consultarBDD(query)
+                print(color.RED + "|ID\t|CODIGO\t|NOMBRES" + color.END)
+                for item in result:
+                    print(
+                        f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
+                print("")
+                id = input("Escoje un ID para modificar: ")
+                codigo = input("Escribe el Codigo de Lector ")
+                nombre = input("Escribe tu nombre: ")
+                apellidoPaterno = input("Escribe tu apellido Paterno: ")
+                apellidoMaterno = input("Escribe tu apellido Materno: ")
+                dni = input("Escribe tu DNI: ")
+                edad = input("Escribe tu edad: ")
+                telefono = input("Escribe el telefono: ")
+                query = f"""update lector
+                            set codigo_lector = '{codigo}',
+                            nombres = '{nombre}',
+                            apellido_paterno = '{apellidoPaterno}',
+                            apellido_materno = '{apellidoMaterno}',
+                            dni = {dni},
+                            edad = {edad},
+                            telefono = '{telefono}'
+                            where id_lector = {id};"""
+                result = conn.ejecutarBDD(query)
+                if(result):
+                    print("Se actualizo correctamente !!")
+                input("presiona una tecla para continuar...")
+
+
     elif(respuesta == "2"):
         menuLibros = Menu("LIBROS", optSubMenu2) 
         while showLibro:
@@ -128,10 +175,10 @@ while showMenu:
             if (rptlibros == "0"): #atras
                 break
             if (rptlibros == "1"):
-                query = "select * from libros order by condicion asc"
+                query = """select id_libro,codigo_libro,condicion,titulo, autor, categoria, paginas, editorial  from libros order by condicion asc;"""
                 resultlibros = conn.consultarBDD(query)
-                headerlibros = ['ID', 'Codigo', 'Titulo', 'Autor', 'Categoria',
-                      'Paginas','Condicion','Descripcion']
+                headerlibros = ['ID', 'Codigo','Condicion','Titulo', 'Autor', 'Categoria',
+                      'Paginas','Editorial']
                 print(tabulate(resultlibros, headers=headerlibros, tablefmt='fancy_grid'))
                 input("presiona cualquier tecla para continuar")
     elif(respuesta=="3"):
