@@ -122,14 +122,14 @@ while showMenu:
                 print(tabulate(result, headers=headerlector, tablefmt='fancy_grid'))
                 input("presiona cualquier tecla para continuar")
             if (rptlector == "2"):
-                codigo = input("Escribe el Codigo de Lector ")
+                codigo = input("Escribe el Codigo de Lector: ")
                 nombre = input("Escribe tu nombre: ")
                 apellidoPaterno = input("Escribe tu apellido Paterno: ")
                 apellidoMaterno = input("Escribe tu apellido Materno: ")
-                dni = input("Escribe tu DNI: ")
+                dni = str(input("Escribe tu DNI: "))
                 edad = input("Escribe tu edad: ")
                 telefono = input("Escribe tu telefono: ")
-                query = f"""insert into profesores (codigo_lector,nombres,apellido_paterno,apellido_materno,dni,edad,telefono) 
+                query = f"""insert into lector (codigo_lector,nombres,apellido_paterno,apellido_materno,dni,edad,telefono) 
                         values ('{codigo}','{nombre}','{apellidoPaterno}','{apellidoMaterno}','{dni}',{edad},'{telefono}');"""
                 result = conn.ejecutarBDD(query)
 
@@ -146,11 +146,11 @@ while showMenu:
                         f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
                 print("")
                 id = input("Escoje un ID para modificar: ")
-                codigo = input("Escribe el Codigo de Lector ")
+                codigo = input("Escribe el Codigo de Lector: ")
                 nombre = input("Escribe tu nombre: ")
                 apellidoPaterno = input("Escribe tu apellido Paterno: ")
                 apellidoMaterno = input("Escribe tu apellido Materno: ")
-                dni = input("Escribe tu DNI: ")
+                dni = str(input("Escribe tu DNI: "))
                 edad = input("Escribe tu edad: ")
                 telefono = input("Escribe el telefono: ")
                 query = f"""update lector
@@ -181,6 +181,49 @@ while showMenu:
                       'Paginas','Editorial']
                 print(tabulate(resultlibros, headers=headerlibros, tablefmt='fancy_grid'))
                 input("presiona cualquier tecla para continuar")
+            if (rptlibros == "2"):
+                codigo = input("Escribe el Codigo del Libro: ")
+                titulo = input("Escribe tu nombre: ")
+                autor = input("Escribe tu apellido Paterno: ")
+                categoria = input("Escribe tu apellido Materno: ")
+                paginas = str(input("Escribe tu DNI: "))
+                editorial = input("Escribe tu edad: ")
+                condicion = input("Escribe tu telefono: ")
+                query = f"""insert into libros (codigo_libro,titulo,autor,categoria,paginas,editorial,condicion) 
+                        values ('{codigo}','{nombre}','{apellidoPaterno}','{apellidoMaterno}','{dni}',{edad},'{telefono}');"""
+                result = conn.ejecutarBDD(query)
+
+            if (rptlibros == "3"):
+                query = """Select id_libro,codigo_libro,titulo from libros;"""
+                result = conn.consultarBDD(query)
+                print(color.RED + "|ID\t|CODIGO\t|TITULO|\t" + color.END)
+                for item in result:
+                    print(
+                        f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
+                print("")
+                id = input("Escoje un ID para modificar: ")
+                codigo = input("Escribe el Codigo de Lector: ")
+                autor = input("Escribe tu nombre: ")
+                titulo = input("Escribe tu nombre: ")
+                categoria = input("Escribe tu apellido Paterno: ")
+                paginas = input("Escribe tu apellido Materno: ")
+                editorial = str(input("Escribe tu DNI: "))
+                condicion = input("Escribe tu edad: ")
+                query = f"""update libros
+                            set codigo_libro = '{codigo}',
+                            titulo = '{nombre}',
+                            autor = '{apellidoPaterno}',
+                            categoria = '{apellidoMaterno}',
+                            paginas = {dni},
+                            editorial = {edad},
+                            condicion = '{telefono}'
+                            where id_libro = {id};"""
+                result = conn.ejecutarBDD(query)
+                if(result):
+                    print("Se actualizo correctamente !!")
+                input("presiona una tecla para continuar...")
+
+
     elif(respuesta=="3"):
         menuPrestamos = Menu("PRESTAMOS", optSubMenu3) 
         while showPrestamo:
