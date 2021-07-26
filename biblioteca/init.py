@@ -126,7 +126,7 @@ while showMenu:
                 nombre = input("Escribe tu nombre: ")
                 apellidoPaterno = input("Escribe tu apellido Paterno: ")
                 apellidoMaterno = input("Escribe tu apellido Materno: ")
-                dni = str(input("Escribe tu DNI: "))
+                dni = input("Escribe tu DNI: ")
                 edad = input("Escribe tu edad: ")
                 telefono = input("Escribe tu telefono: ")
                 query = f"""insert into lector (codigo_lector,nombres,apellido_paterno,apellido_materno,dni,edad,telefono) 
@@ -150,7 +150,7 @@ while showMenu:
                 nombre = input("Escribe tu nombre: ")
                 apellidoPaterno = input("Escribe tu apellido Paterno: ")
                 apellidoMaterno = input("Escribe tu apellido Materno: ")
-                dni = str(input("Escribe tu DNI: "))
+                dni = input("Escribe tu DNI: ")
                 edad = input("Escribe tu edad: ")
                 telefono = input("Escribe el telefono: ")
                 query = f"""update lector
@@ -229,6 +229,15 @@ while showMenu:
             rptprestamos = menuPrestamos.show()
             if (rptprestamos == "0"): #atras
                 break
+            if (rptprestamos == "1"):
+                query = """ select pe.id_prestamo,l.titulo,le.nombres, pe.alquilado, pe.devuelto
+                                from prestamos pe 
+                                inner join libros l on l.id_libro = pe.id_libro
+                                inner join lector le on le.id_lector = pe.id_lector  ;"""
+                result = conn.consultarBDD(query)
+                headerlector = ['ID', 'Lector', 'Libro', 'Fecha Alquiler', 'Fecha Devolucion']
+                print(tabulate(result, headers=headerlector, tablefmt='fancy_grid'))
+                input("presiona cualquier tecla para continuar")
 
             if (rptprestamos == "2"):
                 query = """Select id_libro,codigo_libro,titulo from libros where condicion='LIBRE';"""
@@ -241,39 +250,35 @@ while showMenu:
                         f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
                 print("")
                 idlibro = input("Ingrese el id del libro a alquilar: ")
-                querylibro = f"""select condicion from libros where id_libro={idlibro};"""
-                resultlibro = conn.consultarBDD(querylibro)
-                for item in resultlibro:
-                    condicion=item[0]
-                    if(condicion=='PRESTADO'):
-                        print("El libro se encuentra PRESTADO !!")
-                input("presiona una tecla para continuar...")
-                        
-                dni = input("Ingrese su DNI: ")
-
+                dni = input("Ingrese su dni: ")
                 query = f"""Select id_lector from lector where dni='{dni}';"""
                 resultdni = conn.consultarBDD(query)
 
+                querylibro = f"""Select condicion from libros where id_libro={idlibro} and condicion='LIBRE'"""
+                resultlibro = conn.consultarBDD(querylibro)
+
                 if (resultdni):
-
-                    for item in resultdni:
-                        idlector=item[0]
-
-                        query1 = f"""insert into prestamos (id_lector,id_libro,alquilado) values ({idlector},{idlibro},now());"""
-                        result1 = conn.ejecutarBDD(query1)
-                        if (result1):
-                            print("Se realizo el prestamo correctamente")
-               
-                        query2 = f"""update libros set condicion = 'PRESTADO' where id_libro = {idlibro} and condicion='LIBRE';"""
-                        result2 = conn.ejecutarBDD(query2)
-                        if (result2):
-                            print("El libro se encuentra alquilado !!")
-                    input("presiona una tecla para continuar...")
-
+                    if (resultlibro):
+                        for item in resultdni:
+                            idlector=item[0]
+                            query1 = f"""insert into prestamos (id_lector,id_libro,alquilado) values ({idlector},{idlibro},now());"""
+                            result1 = conn.ejecutarBDD(query1)
+                            if (result1):
+                                print("Se realizo el prestamo correctamente")
+                    
+                            query2 = f"""update libros set condicion = 'PRESTADO' where id_libro = {idlibro} and condicion='LIBRE';"""
+                            result2 = conn.ejecutarBDD(query2)
+                            if (result2):
+                                print("El libro se alquilo !!")
+                                print("")
+                    else:
+                        print(color.RED+"El libro ya se encuentra alquilado o el id del libro es incorrecto"+color.END)
+                        print("")
                 else:
-                    print("No se encuentra registrado como Lector")
+                    print(color.RED+"No se encuentra registrado como Lector"+color.END)
+                    print("")
                 input("presiona una tecla para continuar...")
-            
+
             if (rptprestamos == "3"):
                 dni = input("Ingrese su dni: ")
                 query = f"""Select id_lector from lector where dni='{dni}';"""
@@ -281,30 +286,34 @@ while showMenu:
                 if (resultdni):
                     for item in resultdni:
                         idlector=item[0]
-                        query = f"""Select id_libro,codigo_libro,titulo from libros where id_libro in (Select id_libro from prestamos where id_lector='{idlector}' and devuelto=NULL);"""
-                        resultlibro = conn.consultarBDD(query)
+                        query5 = f"""Select id_libro,codigo_libro,titulo from libros where id_libro in (Select id_libro from prestamos where id_lector='{idlector}');"""
+                        resultlibro = conn.consultarBDD(query5)
                         print(color.RED + "|ID\t|CODIGO\t|TITULO\t" + color.END)
                         for item in resultlibro:
                             print(f"|{item[0]}\t|{item[1]}\t|{item[2]}\t")
-                            print("")
-                        idlibro = input('Ingrese el ID del libro a devolver')
 
-                        query1 = f"""update prestamos
-                                    set devuelto = now()
-                                    where id_libro = {idlibro} and id_lector={idlector};"""
-                        result1 = conn.ejecutarBDD(query1)
-                        if(result1):
+                        idlibro = input('Ingrese el ID del libro a devolver: ')
+                        queryprestamo = f"""Select id_prestamo from prestamos where id_libro={idlibro} and id_lector={idlector};"""
+                        resultprestamo = conn.consultarBDD(queryprestamo)
+                        if (resultprestamo):
+                            query1 = f"""update prestamos
+                                        set devuelto = now()
+                                        where id_libro = {idlibro} and id_lector={idlector};"""
+                            result1 = conn.ejecutarBDD(query1)
+                            if(result1):
                                 print("Se realizo la devolucion correctamente !!")
-                                
-                        query2 = f"""update libros
-                                    set condicion = 'LIBRE'
-                                    where id_libro = {idlibro};"""
-                        result2 = conn.ejecutarBDD(query2)
-                        if(result2):
-                            print("El libro se encuentra devuelto")
-                    input("presiona una tecla para continuar...")
-                
+                                    
+                            query2 = f"""update libros
+                                        set condicion = 'LIBRE'
+                                        where id_libro = {idlibro};"""
+                            result2 = conn.ejecutarBDD(query2)
+                            if(result2):
+                                print("El libro se encuentra devuelto") 
+                        else:
+                            print(color.RED+"El id del libro es incorrecto"+color.END)
+                            print("")       
                 else:
-                    print("No se encuentra registrado como Lector")
+                    print(color.RED+"No se encuentra registrado como Lector"+color.END)
+                    print("")
                 input("presiona una tecla para continuar...")
 
