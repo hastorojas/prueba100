@@ -1,5 +1,10 @@
-...
-
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %} </title>
+    <link rel="stylesheet" href="{{ url_for("static", filename="base.css") }}">
+</head>
 <body>
 <div>
     <ul class="user-info">
@@ -17,5 +22,4 @@
 </div>
 {% block content %}{% endblock %}
 </body>
-
-...
+</html>
