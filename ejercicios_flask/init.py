@@ -1,9 +1,8 @@
-from flask import Flask, request, render_template, url_for, redirect
+from flask import Flask, request, render_template, url_for, redirect, abort
 from dotenv import load_dotenv
 from pathlib import Path
 from forms import SignupForm, PostForm, LoginForm
 from flask_login import LoginManager, logout_user,current_user,login_user,login_required
-from models import users,get_user,User
 from werkzeug.urls import url_parse
 from flask_sqlalchemy import SQLAlchemy
 
@@ -12,22 +11,26 @@ load_dotenv(dotenv_path=env_path)
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '7110c8ae51a4b5af97be6534caef90e4bb9bdcb3380af008f90b23a5d1616bf319bc298105da20fe'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:testing@localhost:5432/miniblog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Nomeacuerdo1701@localhost:5432/miniblog'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 db = SQLAlchemy(app)
 
-posts = []
+from models import User, Post
 
 @app.route("/")
 def index():
+    posts = Post.get_all()
     return render_template("index.html.j2", posts=posts)
 
 @app.route("/p/<string:slug>/")
 def show_post(slug):
-    return render_template("post_view.html.j2", slug_title=slug)
+    post = Post.get_by_slug(slug)
+    if post is None:
+        abort(404)
+    return render_template("post_view.html.j2", post=post)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -53,8 +56,9 @@ def post_form(post_id):
         title = form.title.data
         title_slug = form.title_slug.data
         content = form.content.data
-        post = {'title': title, 'title_slug': title_slug, 'content': content}
-        posts.append(post)
+
+        post = Post(user_id=current_user.id, title=title, content=content)
+        post.save()
         return redirect(url_for('index'))
     return render_template("admin/post_form.html.j2", form=form)
 
@@ -93,6 +97,3 @@ def logout():
 @login_manager.user_loader
 def load_user(user_id):
     return User.get_by_id(int(user_id))
-
-if __name__ == "__main__":
-    app.run()
